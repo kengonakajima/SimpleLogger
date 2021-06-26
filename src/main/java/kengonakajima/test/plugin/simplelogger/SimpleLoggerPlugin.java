@@ -50,7 +50,7 @@ class MyListener implements Listener {
 	    if(from.getBlockX()!=to.getBlockX() || from.getBlockY()!=to.getBlockY() || from.getBlockZ()!=to.getBlockZ()) {
 			movecounter++;
 			if(movecounter%10==0) {
-				logPosition(event.getPlayer(),to,"move");
+				logPosition(event.getPlayer(),to,"move " + to.getBlock().getType());
 			}
 		}
 	}
