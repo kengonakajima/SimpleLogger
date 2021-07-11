@@ -1,5 +1,8 @@
 package kengonakajima.test.plugin.simplelogger;
 
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Collection;
@@ -20,21 +23,48 @@ import org.bukkit.inventory.*;//Inventory;
 
 public class SimpleLoggerPlugin extends JavaPlugin {
 	public String lastDeathJSONPart="";
-
+	public static SimpleLoggerPlugin plugin;
+	public static String greetingMessage=null;
     @Override
     public void onEnable() {
+    	this.plugin=this;
         getLogger().info("SimpleLogger: onEnable");
 
     	MyListener l=new MyListener();
     	l.setPlugin(this);    	
         getServer().getPluginManager().registerEvents(l, this);
-    }
+        MyCommandExecutor ce = new MyCommandExecutor();
+		getCommand("setgreeting").setExecutor(ce);
+		getCommand("cleargreeting").setExecutor(ce);
+	}
     @Override
     public void onDisable() {
         getLogger().info("SimpleLogger: onDisable");
     }
 }
+class MyCommandExecutor implements CommandExecutor {
+	Roman2Kana r2k=new Roman2Kana();
 
+	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+		if(!(sender instanceof Player))return true;
+		Player p = (Player)sender;
+		// console command only
+		SimpleLoggerPlugin.plugin.getLogger().info("commandexecutor: name:" + command.getName());
+		if(command.getName().equals("setgreeting")) {
+			String s="";
+			for(int i=0;i<args.length;i++) s = s.concat(args[i]);
+			s = r2k.convert(s);
+			SimpleLoggerPlugin.greetingMessage = s;
+			p.sendMessage( "setting greeting : " + s);
+		} else if(command.getName().equals("cleargreeting")) {
+			SimpleLoggerPlugin.greetingMessage=null;
+			p.sendMessage("clearing greeting");
+		}
+
+
+		return true;
+	}
+}
 class MyListener implements Listener {
 	SimpleLoggerPlugin plugin;
 	
@@ -65,6 +95,9 @@ class MyListener implements Listener {
 	public void onPlayerJoin(final PlayerJoinEvent event) {
 		Player p=event.getPlayer();
 		logPosition(p,p.getLocation(),"join");
+		if(SimpleLoggerPlugin.greetingMessage!=null) {
+			p.sendMessage(ChatColor.GREEN + SimpleLoggerPlugin.greetingMessage);
+		}
 	}
 	@EventHandler
 	public void onPlayerChat(final AsyncPlayerChatEvent event) { 

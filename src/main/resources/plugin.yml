@@ -4,3 +4,9 @@ version: 0.0.1
 api-version: 1.16
 
 commands:
+  setgreeting:
+    description: set greeting message
+    usage: /setgreeting message text
+  cleargreeting:
+    description: clear greeting message
+    usage: /cleargreeting
